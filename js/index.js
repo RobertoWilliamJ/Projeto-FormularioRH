@@ -13,7 +13,7 @@ const $btnFormTwo = $('#btnFormTwo')
 const $containerBtnFormThree = $('#containerBtnFormThree')
 const $btnFormThree = $('#btnFormThree')
 const $inputNome = $('#nome')
-const $inputSobreome = $('#sobrenome')
+const $inputSobrenome = $('#sobrenome')
 const $inputDataNascimento = $('#dataNascimento')
 const $inputEmail = $('#email')
 const $inputMinibio = $('#minibio')
@@ -128,11 +128,68 @@ function iniciarFormularioTres(){
         validarFormularioTres();
     })
 
+async function salvarNoTrello(){
+    try{
+        const nome = $inputNome.val();
+        const sobrenome = $inputSobrenome.val();
+        const email = $inputEmail.val();
+        const dataNascimento = $inputDataNascimento.val();
+        const minibio = $inputMinibio.val();
+        const endereco = $inputEndereco.val();
+        const complemento = $inputComplemento.val();
+        const cidade = $inputCidade.val();
+        const cep = $inputCep.val();
+        const habilidades = $inputhabilidades.val();
+        const pontosForte = $inputpontosForte.val();
+
+        if(!nome || !sobrenome || !email || !dataNascimento || !endereco 
+            || !cidade || !cep || !habilidades || !pontosForte){
+                return alert('Favor preencher todos os dados obrigatorios para seguir.');
+        }
+
+        const body = {
+            name: "Candidato - " + nome + " " + sobrenome,
+            desc: `
+                Seguem dados do candidato(a):
+                -------------------- Dados Pessoais----------------
+                Nome: ${nome}
+                Sobrenome: ${sobrenome}
+                Email: ${email}
+                Data de nascimento: ${dataNascimento}
+                Minibio: ${minibio}
+                
+                -------------------- Dados de endereço ----------------
+                Endereço: ${endereco}
+                Complemento: ${complemento}
+                Cidade: ${cidade}
+                Cep: ${dataNascimento}
+
+                -------------------- Dados do candidato ----------------
+                Habilidades: ${habilidades}
+                Pontos Fortes: ${pontosForte}
+                Cidade: ${cidade}
+            `
+        }
+
+        await fetch('https://api.trello.com/1/cards?idList=653aa237d501bcd92e187def&key=e475c3e4e550962c5c1882e10db85fb7&token=ATTAa1300ae6109bd94a2d57e712f24dbcb153c33ccaf7049569f4daa5cc0dbc2e6bD60F0F85',{
+            method: 'POST',
+            headers:{ 
+                    "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        });
+
+            return finalizarFormulario();
+        }catch(e){
+        console.log('Ocorreu erro ao salvar no Trello:', e);
+    }
+}
+
 function validarFormularioTres(){
     if(habilidadesValido && pontosForteValido){
         $containerBtnFormThree.removeClass('disabled');
         $btnFormThree.removeClass('disabled');
-        $btnFormThree.off('click').on('click', finalizarFormulario);
+        $btnFormThree.off('click').on('click', salvarNoTrello);
     }else{
         $containerBtnFormThree.addClass('disabled');
         $btnFormThree.addClass('disabled');
@@ -158,7 +215,7 @@ function init(){
       validaFormularioum();
     });
 
-    $inputSobreome.keyup(function(){
+    $inputSobrenome.keyup(function(){
         sobrenomenomeValido = validarInput(this, minLengthText);
         validaFormularioum();
     });
